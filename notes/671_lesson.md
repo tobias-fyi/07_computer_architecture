@@ -31,12 +31,12 @@ oxC apples
 
 ### Binary (Base 2)
 
-+----8s place
-|+---4s place
-||+--2s place
-|||+-1s place
-||||
-1101 -> 8 + 4 + 0 + 1 = 13
+    +----8s place
+    |+---4s place
+    ||+--2s place
+    |||+-1s place
+    ||||
+    1101 -> 8 + 4 + 0 + 1 = 13
 
 ## Conversions
 
