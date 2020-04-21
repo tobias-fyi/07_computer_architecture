@@ -17,18 +17,14 @@ class CPU:
         # PC: address (index) of currently executing instruction
         self.pc = 0
 
-        # === Instruction definition === #
-        self.ldi = 0b10000010
-        self.prn = 0b01000111
-        self.hlt = 0b01000111
+        # Attribute to control runtime
+        self.running = False
 
     def load(self):
         """Load a program into memory."""
         # Keep track of address (index) of current instruction
         address = 0
-
         # For now, we've just hardcoded a program:
-
         program = [
             # From print8.ls8
             0b10000010,  # LDI R0,8
@@ -51,34 +47,42 @@ class CPU:
         """Writes a value (MDR) to a memory address (MAR)."""
         self.ram[address] = value
 
+    def ldi(self):
+        """LDI: Load instruction handler."""
+        # Read bytes at ram[self.pc + 1]
+        operand_a = self.ram_read(self.pc + 1)
+        # And ram[self.pc + 2]
+        operand_b = self.ram_read(self.pc + 2)
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+
+    def prn(self):
+        """PRN: Print instruction handler."""
+        operand = self.ram_read(self.pc + 1)
+        print(self.reg[operand])
+        self.pc += 2
+
+    def hlt(self):
+        """HLT: Halt instruction handler."""
+        self.running = False
+
     def run(self):
         """Run the CPU."""
-        running = True
-        while running:
+        self.running = True
+        while self.running:
             # Read memory address stored in register PC
             # Store result in Instruction Register
             ir = self.ram_read(self.pc)
-
-            # Read the instruction stored in memory
-            if ir == self.ldi:  # LDI: Load immediate
-                # Read bytes at ram[self.pc + 1]
-                operand_a = self.ram_read(self.pc + 1)
-                # And ram[self.pc + 2]
-                operand_b = self.ram_read(self.pc + 2)
-
-                self.reg[operand_a] = operand_b
-
-            elif ir == self.prn:  # PRN: Print operand
-                operand = self.ram_read(self.pc + 1)
-                print(self.reg[operand])
-                pc += 2
-
-            elif ir == self.hlt:  # HLT: Halt
-                running = False
-
+            # Execute the current instruction
+            if ir == 0b10000010:  # LDI: Load immediate
+                self.ldi()
+            elif ir == 0b01000111:  # PRN: Print operand
+                self.prn()
+            elif ir == 0b00000001:  # HLT: Halt
+                self.hlt()
             else:  # Catch invalid / other instruction
                 print("Unrecognized instruction")
-                running = False
+                self.running = False
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
