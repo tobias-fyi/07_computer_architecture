@@ -14,8 +14,13 @@ class CPU:
         # === Internal registers === #
         # 8 general-purpose registers
         self.reg = [0] * 8
-        # PC: address of currently executing instruction
+        # PC: address (index) of currently executing instruction
         self.pc = 0
+
+        # === Instruction definition === #
+        self.ldi = 0b10000010
+        self.prn = 0b01000111
+        self.hlt = 0b01000111
 
     def load(self):
         """Load a program into memory."""
@@ -38,13 +43,42 @@ class CPU:
             self.ram[address] = instruction
             address += 1
 
-    def ram_read(self, mar) -> int:
+    def ram_read(self, address) -> int:
         """Returns the value (MDR) stored at a memory address (MAR)."""
-        return self.ram[mar]
+        return self.ram[address]
 
-    def ram_write(self, mdr, mar):
+    def ram_write(self, value, address) -> None:
         """Writes a value (MDR) to a memory address (MAR)."""
-        pass
+        self.ram[address] = value
+
+    def run(self):
+        """Run the CPU."""
+        running = True
+        while running:
+            # Read memory address stored in register PC
+            # Store result in Instruction Register
+            ir = self.ram_read(self.pc)
+
+            # Read the instruction stored in memory
+            if ir == self.ldi:  # LDI: Load immediate
+                # Read bytes at ram[self.pc + 1]
+                operand_a = self.ram_read(self.pc + 1)
+                # And ram[self.pc + 2]
+                operand_b = self.ram_read(self.pc + 2)
+
+                self.reg[operand_a] = operand_b
+
+            elif ir == self.prn:  # PRN: Print operand
+                operand = self.ram_read(self.pc + 1)
+                print(self.reg[operand])
+                pc += 2
+
+            elif ir == self.hlt:  # HLT: Halt
+                running = False
+
+            else:  # Catch invalid / other instruction
+                print("Unrecognized instruction")
+                running = False
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -79,7 +113,3 @@ class CPU:
             print(" %02X" % self.reg[i], end="")
 
         print()
-
-    def run(self):
-        """Run the CPU."""
-        pass
