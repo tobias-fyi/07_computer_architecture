@@ -21,6 +21,9 @@ class CPU:
         # Attribute to control runtime
         self.running = False
 
+        # === Instruction lookup table === #
+        # TODO: inst_dict = {}
+
     def load(self, program_filepath: str) -> None:
         """Load a program into memory from file.
         
@@ -54,22 +57,29 @@ class CPU:
         """Writes a value (MDR) to a memory address (MAR)."""
         self.ram[address] = value
 
-    def ldi(self):
-        """LDI: Load instruction handler."""
-        # Read bytes at ram[self.pc + 1]
-        operand_a = self.ram_read(self.pc + 1)
-        # And ram[self.pc + 2]
-        operand_b = self.ram_read(self.pc + 2)
-        self.reg[operand_a] = operand_b
+    def ldi(self, operands: list):
+        """LDI: Instruction loader handler"""
+        reg_a, reg_b = operands  # Extract operands from array
+        self.reg[reg_a] = reg_b
 
-    def prn(self):
+    def prn(self, operands):
         """PRN: Print instruction handler."""
-        operand = self.ram_read(self.pc + 1)
-        print(self.reg[operand])
+        print(self.reg[operands[0]])
 
     def hlt(self):
         """HLT: Halt instruction handler."""
         self.running = False
+
+    def alu(self, op, operands: list) -> None:
+        """ALU operations."""
+        reg_a, reg_b = operands  # Extract operands from array
+
+        if op == "ADD":
+            self.reg[reg_a] += self.reg[reg_b]
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
+        else:
+            raise Exception("Unsupported ALU operation")
 
     def run(self):
         """Run the CPU."""
@@ -81,33 +91,29 @@ class CPU:
 
             # Get instruction length (pc increment amt)
             inst_len = ((ir & 0b11000000) >> 6) + 1
+            alu_op = (ir & 0b00100000) >> 5
+            sets_pc = (ir & 0b00010000) >> 4
+            inst_id = ir & 0b00001111
+
+            # Assign operands according to inst_len
+            operands = []
+            for i in range(1, inst_len):
+                operands.append(self.ram_read(self.pc + i))
 
             # Execute the current instruction
             if ir == 0b10000010:  # LDI: Load immediate
-                self.ldi()
+                self.ldi(operands)
             elif ir == 0b01000111:  # PRN: Print operand
-                self.prn()
+                self.prn(operands)
             elif ir == 0b00000001:  # HLT: Halt
                 self.hlt()
             elif ir == 0b10100010:  # MUL: Multiply
-                operand_a = self.ram_read(self.pc + 1)
-                operand_b = self.ram_read(self.pc + 2)
-                self.alu("MUL", operand_a, operand_b)
+                self.alu("MUL", operands)
             else:  # Catch invalid / other instruction
                 print("Unrecognized instruction")
                 self.running = False
 
             self.pc += inst_len
-
-    def alu(self, op, reg_a, reg_b):
-        """ALU operations."""
-
-        if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        elif op == "MUL":
-            self.reg[reg_a] *= self.reg[reg_b]
-        else:
-            raise Exception("Unsupported ALU operation")
 
     def trace(self):
         """Handy function to print out the CPU state.
