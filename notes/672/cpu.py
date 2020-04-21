@@ -41,29 +41,28 @@ class CPU:
         # Attribute to control runtime
         self.running = False
 
-    def load(self):
-        """Load a program into memory."""
-        # Keep track of address (index) of current instruction
-        address = 0
+    def load(self, program_filepath: str) -> None:
+        """Load a program into memory from file.
+        
+        : param program_filepath (str) : Path to program file.
+        """
+        address = 0  # Address (index) of current instruction
 
-        # Load binary data from file
-        program_filename = sys.argv[1]
-
-        with open(program_filename, "r") as f:
-            # Reads in as string
+        # === Load instructions from file === #
+        with open(program_filepath, "r") as f:
             program = f.read().splitlines()
 
+        # === Parse each line: string -> bits === #
         for inst in program:
             # === Remove anything after octothorpe === #
             if inst.startswith("#") or inst.strip() == "":
                 continue  # If line comment or empty line
-            elif inst.rfind("#") > 0:  # Comment on same line as inst
-                inst = inst[inst.rfind("#")]
-
-            # Convert to binary / int
-            inst = int(inst, 2)
-            self.ram[address] = inst
-            address += 1
+            elif inst.rfind("#") > 0:  # If comment on same line as inst
+                cut_index = inst.rfind("#")  # Get index of octothorpe
+                inst = inst[:cut_index]  # Slice from index to end
+            inst = int(inst, 2)  # Convert to bit
+            self.ram[address] = inst  # Assign value to memory address
+            address += 1  # Move to next memory slot
 
     def ram_read(self, address) -> int:
         """Returns the value (MDR) stored at a memory address (MAR)."""

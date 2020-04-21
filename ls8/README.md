@@ -153,7 +153,7 @@ into the source. This isn't particularly user-friendly.
 Make changes to `cpu.py` and `ls8.py` so that the program can be specified on
 the command line like so:
 
-```
+```shell
 python3 ls8.py examples/mult.ls8
 ```
 

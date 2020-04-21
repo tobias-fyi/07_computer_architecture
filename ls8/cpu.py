@@ -1,5 +1,6 @@
-"""CPU functionality."""
+"""Computer Architecture :: CPU emulator class"""
 
+import os
 import sys
 
 
@@ -20,24 +21,30 @@ class CPU:
         # Attribute to control runtime
         self.running = False
 
-    def load(self):
-        """Load a program into memory."""
-        # Keep track of address (index) of current instruction
-        address = 0
-        # For now, we've just hardcoded a program:
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
+    def load(self, program_filepath: str) -> None:
+        """Load a program into memory from file.
+        
+        : param program_filepath (str) : Path to program file.
+        """
+        address = 0  # Address (index) of current instruction
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        try:  # Load instructions from file
+            with open(program_filepath, "r") as f:
+                program = f.read().splitlines()
+        except FileNotFoundError:
+            print(f"File '{program_filepath}' failed to load.")
+
+        # === Parse each line: string -> bits === #
+        for inst in program:
+            # === Remove anything after octothorpe === #
+            if inst.startswith("#") or inst.strip() == "":
+                continue  # If line comment or empty line
+            elif inst.rfind("#") > 0:  # If comment on same line as inst
+                cut_index = inst.rfind("#")  # Get index of octothorpe
+                inst = inst[:cut_index]  # Slice from index to end
+            inst = int(inst, 2)  # Convert to bit
+            self.ram[address] = inst  # Assign value to memory address
+            address += 1  # Move to next memory slot
 
     def ram_read(self, address) -> int:
         """Returns the value (MDR) stored at a memory address (MAR)."""
@@ -121,3 +128,14 @@ class CPU:
             print(" %02X" % self.reg[i], end="")
 
         print()
+
+
+if __name__ == "__main__":
+    # === Debugging setup === #
+    to_repo = "/Users/Tobias/workshop/buildbox/lambda_cs"
+    to_file = "07_computer_architecture/ls8/examples/print8.ls8"
+    filepath = os.path.join(to_repo, to_file)
+
+    cpu = CPU()
+    cpu.load(filepath)
+    cpu.run()

@@ -6,9 +6,10 @@
 * [Bitwise AND](#bitwise-and)
 * [Bitwise Operators](#bitwise-operators)
 * [Shift Operators](#shift-operators)
+* [ALU: Arithmetic Logic Unit](#alu-arithmetic-logic-unit)
 * [Instruction Layout](#instruction-layout)
   * [LDI](#ldi)
-* [ALU: Arithmetic Logic Unit](#alu-arithmetic-logic-unit)
+* [Loading program from file](#loading-program-from-file)
 
 ---
 
@@ -102,6 +103,12 @@ The "AND mask" can be used to extract any of the bits of a number.
     000340
     000034 <<
 
+## ALU: Arithmetic Logic Unit
+
+[ALU: Arithmetic Logic Unit](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)
+
+That is where math is calculated.
+
 ## Instruction Layout
 
 Meanings of the bits in the first byte of each instruction: `AABCDDDD`
@@ -127,8 +134,61 @@ Machine code:
 
 In the analogy of the mailboxes, the general-purpose registers are just another row of mailboxes.
 
-## ALU: Arithmetic Logic Unit
+    LDI 10000010
+    LDA R2, 37
+    pc += 3
 
-[ALU: Arithmetic Logic Unit](https://en.wikipedia.org/wiki/Arithmetic_logic_unit)
+    ir = 0b10000010
 
-That is where math is calculated.
+      10000010
+    & 11000000
+    ============
+      10000000
+      01000000
+      00100000
+      00010000
+      00001000
+      00000100
+      00000010
+
+```py
+inst_len = ((inst & 0b11000000) >> 6) + 1
+# >>> 3
+```
+
+* AND: clear bits to 0, mask out bits
+* OR : set bits to 1
+* SHIFT: with AND to extract sets of bits
+
+## Loading program from file
+
+Updated the `CPU.load()` method
+
+```py
+    def load(self):
+        """Load a program into memory."""
+        # Keep track of address (index) of current instruction
+        address = 0
+
+        # Load binary data from file
+        program_filename = sys.argv[1]
+
+        with open(program_filename, "r") as f:
+            # Reads in as string
+            program = f.read().splitlines()
+
+        for instruction in program:
+            # === Remove anything after octothorpe === #
+            # If line comment or empty line
+            if instruction.startswith("#") or instruction.strip() == "":
+                continue
+            # If comment is on same line as instruction
+            elif instruction.rfind("#") > 0:
+                oct_index = instruction.rfind("#")
+                instruction = instruction[:oct_index]
+
+            # Convert to binary / int
+            instruction = int(instruction, 2)
+            self.ram[address] = instruction
+            address += 1
+```
