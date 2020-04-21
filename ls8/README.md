@@ -203,7 +203,7 @@ x = int("1010101", 2)  # Convert binary string to integer
 
 Extend your LS8 emulator to support the following program:
 
-```
+```txt
 # mult.ls8: Multiply 8x9 and print 72
 
 10000010 # LDI R0,8
@@ -222,7 +222,7 @@ Extend your LS8 emulator to support the following program:
 
 One you run it with `python3 ls8.py examples/mult.ls8`, you should see:
 
-```
+```txt
 72
 ```
 
@@ -286,16 +286,15 @@ This stack resides in main memory and typically starts at the top of memory (at
 a high address) and grows _downward_ as things are pushed on. The LS-8 is no
 exception to this.
 
-Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
-  the beginning of the spec to see which register is the stack pointer.
-  
+Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read the beginning of the spec to see which register is the stack pointer.
+
 * Values themselves should be saved in the ***portion of RAM*** _that is allocated for the stack_.
-  -  Use the stack pointer to modify the correct block of memory.
-  - Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
+  * Use the stack pointer to modify the correct block of memory.
+  * Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
 
 If you run `python3 ls8.py examples/stack.ls8` you should see the output:
 
-```
+```txt
 2
 4
 1
@@ -333,7 +332,7 @@ and `RET`.
 
 If you run `python3 ls8.py examples/call.ls8` you should see the output:
 
-```
+```txt
 20
 30
 36
@@ -372,7 +371,7 @@ popped off the stack and execution continues normally.
 This code prints out the letter `A` from the timer interrupt handler
 that fires once per second.
 
-```
+```txt
 # interrupts.ls8
 
 10000010 # LDI R0,0XF8
@@ -449,7 +448,7 @@ does it differently than Unix/Mac.
 
 Write an LS-8 assembly program that prints this curve on the screen:
 
-```
+```txt
 *
 **
 ****

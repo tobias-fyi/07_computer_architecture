@@ -134,8 +134,7 @@ If a bit is set:
 3. The `PC` register is pushed on the stack.
 4. The `FL` register is pushed on the stack.
 5. Registers R0-R6 are pushed on the stack in that order.
-6. The address (_vector_ in interrupt terminology) of the appropriate
-   handler is looked up from the interrupt vector table.
+6. The address (_vector_ in interrupt terminology) of the appropriate handler is looked up from the interrupt vector table.
 7. Set the PC is set to the handler address.
 
 While an interrupt is being serviced (between the handler being called
@@ -250,8 +249,7 @@ A8 0a 0b
 
 Calls a subroutine (function) at the address stored in the register.
 
-1. The address of the ***instruction*** _directly after_ `CALL` is
-   pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
+1. The address of the ***instruction*** _directly after_ `CALL` is pushed onto the stack. This allows us to return to where we left off when the subroutine finishes executing.
 2. The PC is set to the address stored in the given register. We jump to that location in RAM and execute the first instruction in the subroutine. The PC can move forward or backwards from its current location.
 
 Machine code:
@@ -271,11 +269,9 @@ Compare the values in two registers.
 
 * If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
 
-* If registerA is less than registerB, set the Less-than `L` flag to 1,
-  otherwise set it to 0.
+* If registerA is less than registerB, set the Less-than `L` flag to 1, otherwise set it to 0.
 
-* If registerA is greater than registerB, set the Greater-than `G` flag
-  to 1, otherwise set it to 0.
+* If registerA is greater than registerB, set the Greater-than `G` flag to 1, otherwise set it to 0.
 
 Machine code:
 

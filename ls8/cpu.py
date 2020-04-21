@@ -61,13 +61,11 @@ class CPU:
         # And ram[self.pc + 2]
         operand_b = self.ram_read(self.pc + 2)
         self.reg[operand_a] = operand_b
-        self.pc += 3
 
     def prn(self):
         """PRN: Print instruction handler."""
         operand = self.ram_read(self.pc + 1)
         print(self.reg[operand])
-        self.pc += 2
 
     def hlt(self):
         """HLT: Halt instruction handler."""
@@ -91,16 +89,23 @@ class CPU:
                 self.prn()
             elif ir == 0b00000001:  # HLT: Halt
                 self.hlt()
+            elif ir == 0b10100010:  # MUL: Multiply
+                operand_a = self.ram_read(self.pc + 1)
+                operand_b = self.ram_read(self.pc + 2)
+                self.alu("MUL", operand_a, operand_b)
             else:  # Catch invalid / other instruction
                 print("Unrecognized instruction")
                 self.running = False
+
+            self.pc += inst_len
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        # elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -133,8 +138,9 @@ class CPU:
 if __name__ == "__main__":
     # === Debugging setup === #
     to_repo = "/Users/Tobias/workshop/buildbox/lambda_cs"
-    to_file = "07_computer_architecture/ls8/examples/print8.ls8"
-    filepath = os.path.join(to_repo, to_file)
+    to_dir = "07_computer_architecture/ls8/examples/"
+    to_file = "mult.ls8"
+    filepath = os.path.join(to_repo, to_dir, to_file)
 
     cpu = CPU()
     cpu.load(filepath)
