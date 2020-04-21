@@ -1,5 +1,5 @@
 """
-Computer Architecture :: Day 1
+Computer Architecture — Day 1 :: Bases and Basics
 
 Python program that runs programs
 """

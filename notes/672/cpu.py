@@ -1,4 +1,25 @@
-"""CPU functionality."""
+"""
+Computer Architecture — Day 2 :: Bitwise
+"""
+
+# === Bitwise AND === #
+1 & 1
+# >>> 1
+
+f"{164:b}"
+# >>> '10100100'
+
+"""
+# From print8.ls8
+
+10000010  # LDI R0,8
+00000000
+00001000
+01000111  # PRN R0
+00000000
+00000001  # HLT
+"""
+
 
 import sys
 
@@ -24,19 +45,24 @@ class CPU:
         """Load a program into memory."""
         # Keep track of address (index) of current instruction
         address = 0
-        # For now, we've just hardcoded a program:
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
 
-        for instruction in program:
-            self.ram[address] = instruction
+        # Load binary data from file
+        program_filename = sys.argv[1]
+
+        with open(program_filename, "r") as f:
+            # Reads in as string
+            program = f.read().splitlines()
+
+        for inst in program:
+            # === Remove anything after octothorpe === #
+            if inst.startswith("#") or inst.strip() == "":
+                continue  # If line comment or empty line
+            elif inst.rfind("#") > 0:  # Comment on same line as inst
+                inst = inst[inst.rfind("#")]
+
+            # Convert to binary / int
+            inst = int(inst, 2)
+            self.ram[address] = inst
             address += 1
 
     def ram_read(self, address) -> int:
