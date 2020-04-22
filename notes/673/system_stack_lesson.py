@@ -38,7 +38,7 @@ register = [0] * 8  # like variables R0-R7
 
 # R7 is the SP
 SP = 7
-register[SP] = SP
+register[SP] = 0xF4
 
 # Load program into memory
 address = 0

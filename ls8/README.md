@@ -1,5 +1,23 @@
 # Project: The LS-8 Emulator
 
+* [Implementation of the LS-8 Emulator](#implementation-of-the-ls-8-emulator)
+* [Step 0: IMPORTANT: inventory what is here!](#step-0-important-inventory-what-is-here)
+* [Step 1: Add the constructor to `cpu.py`](#step-1-add-the-constructor-to-cpupy)
+* [Step 2: Add RAM functions](#step-2-add-ram-functions)
+* [Step 3: Implement the core of `CPU`'s `run()` method](#step-3-implement-the-core-of-cpus-run-method)
+* [Step 4: Implement the `HLT` instruction handler](#step-4-implement-the-hlt-instruction-handler)
+* [Step 5: Add the `LDI` instruction](#step-5-add-the-ldi-instruction)
+* [Step 6: Add the `PRN` instruction](#step-6-add-the-prn-instruction)
+* [Step 7: Un-hardcode the machine code](#step-7-un-hardcode-the-machine-code)
+* [Step 8: Implement a Multiply and Print the Result](#step-8-implement-a-multiply-and-print-the-result)
+* [Step 9: Beautify your `run()` loop](#step-9-beautify-your-run-loop)
+* [Step 10: Implement System Stack](#step-10-implement-system-stack)
+* [Step 11: Implement Subroutine Calls](#step-11-implement-subroutine-calls)
+* [Stretch Goal: Timer Interrupts](#stretch-goal-timer-interrupts)
+* [Example](#example)
+* [Stretch Goal: Keyboard Interrupts](#stretch-goal-keyboard-interrupts)
+* [Stretch Goal: Curve Histogram](#stretch-goal-curve-histogram)
+
 ## Implementation of the LS-8 Emulator
 
 _Objective_: to gain a deeper understanding of how a CPU functions at a

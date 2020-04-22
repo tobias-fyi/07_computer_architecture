@@ -13,16 +13,26 @@ class CPU:
         self.ram = [0] * 256
 
         # === Internal registers === #
-        # 8 general-purpose registers
-        self.reg = [0] * 8
+        self.reg = [0] * 8  # 8 general-purpose registers
+        self.sp = 7  # R7 is reserved as the Stack Pointer (SP)
+        self.reg[self.sp] = 0xF4  # Stack starts at memory address F4
         # PC: address (index) of currently executing instruction
         self.pc = 0
 
         # Attribute to control runtime
         self.running = False
 
-        # === Instruction lookup table === #
-        # TODO: inst_dict = {}
+        # === Opcodes and operands === #
+        # Attribute to share operands across methods
+        self.operands = []
+        # Dictionary to look up opcodes / instructions
+        self.opcodes = {
+            0b10000010: self.ldi,
+            0b01000111: self.prn,
+            0b00000001: self.hlt,
+            0b01000101: self.push,
+            0b01000110: self.pop,
+        }
 
     def load(self, program_filepath: str) -> None:
         """Load a program into memory from file.
@@ -57,29 +67,42 @@ class CPU:
         """Writes a value (MDR) to a memory address (MAR)."""
         self.ram[address] = value
 
-    def ldi(self, operands: list):
+    def ldi(self):
         """LDI: Instruction loader handler"""
-        reg_a, reg_b = operands  # Extract operands from array
+        reg_a, reg_b = self.operands  # Extract operands from array
         self.reg[reg_a] = reg_b
 
-    def prn(self, operands):
+    def prn(self):
         """PRN: Print instruction handler."""
-        print(self.reg[operands[0]])
+        print(self.reg[self.operands[0]])
 
     def hlt(self):
         """HLT: Halt instruction handler."""
         self.running = False
 
-    def alu(self, op, operands: list) -> None:
-        """ALU operations."""
-        reg_a, reg_b = operands  # Extract operands from array
+    def push(self):
+        """PUSH: Push the value in the 
+        given register onto the stack.
+        """
+        # Decrement stack pointer
+        self.reg[self.sp] -= 1
+        # Copy value to be pushed to stack from reg to ram
+        value = self.reg[self.operands[0]]
+        address = self.reg[self.sp]  # Get address from R7
+        # Assign value to (memory address of) top of stack
+        self.ram[address] = value
 
-        if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        elif op == "MUL":
-            self.reg[reg_a] *= self.reg[reg_b]
-        else:
-            raise Exception("Unsupported ALU operation")
+    def pop(self):
+        """POP: Pop the value at the top of
+        the stack into the given register.
+        """
+        address = self.reg[self.sp]  # Get address from SP / R7
+        # Copy value from memory at address
+        value = self.ram[address]
+        # Assign value to the given register
+        self.reg[self.operands[0]] = value
+        # Increment the stack pointer
+        self.reg[self.sp] += 1
 
     def run(self):
         """Run the CPU."""
@@ -96,24 +119,32 @@ class CPU:
             inst_id = ir & 0b00001111
 
             # Assign operands according to inst_len
-            operands = []
+            self.operands = []  # Reset operands
             for i in range(1, inst_len):
-                operands.append(self.ram_read(self.pc + i))
+                self.operands.append(self.ram_read(self.pc + i))
 
-            # Execute the current instruction
-            if ir == 0b10000010:  # LDI: Load immediate
-                self.ldi(operands)
-            elif ir == 0b01000111:  # PRN: Print operand
-                self.prn(operands)
-            elif ir == 0b00000001:  # HLT: Halt
-                self.hlt()
+            # Look up / execute the current instruction
+            if ir in self.opcodes:
+                self.opcodes[ir]()
+            # TODO: figure out how to add this to lookup
             elif ir == 0b10100010:  # MUL: Multiply
-                self.alu("MUL", operands)
+                self.alu("MUL")
             else:  # Catch invalid / other instruction
                 print("Unrecognized instruction")
                 self.running = False
 
             self.pc += inst_len
+
+    def alu(self, op) -> None:
+        """ALU operations."""
+        reg_a, reg_b = self.operands  # Extract operands from array
+
+        if op == "ADD":
+            self.reg[reg_a] += self.reg[reg_b]
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
+        else:
+            raise Exception("Unsupported ALU operation")
 
     def trace(self):
         """Handy function to print out the CPU state.
