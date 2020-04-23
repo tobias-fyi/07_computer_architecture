@@ -32,6 +32,8 @@ class CPU:
             0b00000001: self.hlt,
             0b01000101: self.push,
             0b01000110: self.pop,
+            0b01010000: self.call,
+            0b00010001: self.ret,
         }
 
     def load(self, program_filepath: str) -> None:
@@ -104,6 +106,26 @@ class CPU:
         # Increment the stack pointer
         self.reg[self.sp] += 1
 
+    def call(self):
+        """CALL: Calls a subroutine (function) at the
+        address stored in the register."""
+        # Get return address (PC + 2)
+        self.reg[self.sp] -= 1  # Decrement stack pointer
+        # Push return address -> stack
+        self.ram[self.reg[self.sp]] = self.pc + 2
+
+        # Set PC to value in given register (dest address)
+        dest_addr = self.reg[self.operands[0]]
+        self.pc = dest_addr
+
+    def ret(self):
+        """RET: Return from subroutine to main scope."""
+        # Pop return address from stack
+        return_addr = self.ram[self.reg[self.sp]]
+        self.reg[self.sp] += 1  # Increment stack pointer
+        # Set PC to return address
+        self.pc = return_addr
+
     def run(self):
         """Run the CPU."""
         self.running = True
@@ -133,7 +155,9 @@ class CPU:
                 print("Unrecognized instruction")
                 self.running = False
 
-            self.pc += inst_len
+            # If instruction does not set PC, increment by length
+            if sets_pc == 0:
+                self.pc += inst_len
 
     def alu(self, op) -> None:
         """ALU operations."""
