@@ -91,6 +91,20 @@ while running:
 
         pc += 2
 
+    elif inst == POP:
+		# copy value from register into memory
+		reg_num = memory[pc + 1]
+
+		address = register[SP]   # addr of item on the top of the stack
+		value = memory[address]  # this is the value we popped
+
+		register[reg_num] = value   # store the value in the register
+
+		pc += 2
+
+		# increment the stack pointer
+		register[SP] += 1   # address_of_the_top_of_stack -= 1
+
     elif inst == CALL:
         # Compute return address
         return_addr = pc + 2
@@ -111,6 +125,7 @@ while running:
         register[SP] += 1
 
         # Set the PC
+        pc = return_addr
 
     elif inst == HALT:
         running = False

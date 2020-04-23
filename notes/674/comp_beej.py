@@ -7,7 +7,7 @@ program_filename = sys.argv[1]
 
 PRINT_BEEJ = 1
 HALT = 2
-SAVE_REG = 3   # Store a value in a register (in the LS8 called LDI)
+SAVE_REG = 3  # Store a value in a register (in the LS8 called LDI)
 PRINT_REG = 4  # corresponds to PRN in the LS8
 PUSH = 5
 POP = 6
@@ -32,7 +32,7 @@ memory = [
 """
 
 memory = [0] * 256
-register = [0] * 8   # like variables R0-R7
+register = [0] * 8  # like variables R0-R7
 
 # R7 is the SP
 SP = 7
@@ -42,95 +42,94 @@ register[SP] = 0xF4
 address = 0
 
 with open(program_filename) as f:
-	for line in f:
-		line = line.split('#')
-		line = line[0].strip()
+    for line in f:
+        line = line.split("#")
+        line = line[0].strip()
 
-		if line == '':
-			continue
+        if line == "":
+            continue
 
-		memory[address] = int(line)
+        memory[address] = int(line)
 
-		address += 1
+        address += 1
 
-#print(type(memory[0]))
-#sys.exit()
+# print(type(memory[0]))
+# sys.exit()
 
-pc = 0 # Program Counter, the address of the current instruction
+pc = 0  # Program Counter, the address of the current instruction
 running = True
 
 while running:
-	inst = memory[pc]
+    inst = memory[pc]
 
-	if inst == PRINT_BEEJ:
-		print("Beej!")
-		pc += 1
+    if inst == PRINT_BEEJ:
+        print("Beej!")
+        pc += 1
 
-	elif inst == SAVE_REG:
-		reg_num = memory[pc + 1]
-		value = memory[pc + 2]
-		register[reg_num] = value
-		pc += 3
+    elif inst == SAVE_REG:
+        reg_num = memory[pc + 1]
+        value = memory[pc + 2]
+        register[reg_num] = value
+        pc += 3
 
-	elif inst == PRINT_REG:
-		reg_num = memory[pc + 1]
-		value = register[reg_num]
-		print(value)
-		pc += 2
-                          
-	elif inst == PUSH:
-		# decrement the stack pointer
-		register[SP] -= 1   # address_of_the_top_of_stack -= 1
+    elif inst == PRINT_REG:
+        reg_num = memory[pc + 1]
+        value = register[reg_num]
+        print(value)
+        pc += 2
 
-		# copy value from register into memory
-		reg_num = memory[pc + 1]
-		value = register[reg_num]  # this is what we want to push
+    elif inst == PUSH:
+        # decrement the stack pointer
+        register[SP] -= 1  # address_of_the_top_of_stack -= 1
 
-		address = register[SP]    # addr of the new top of that stack
-		memory[address] = value   # store the value on the stack
+        # copy value from register into memory
+        reg_num = memory[pc + 1]
+        value = register[reg_num]  # this is what we want to push
 
-		pc += 2
+        address = register[SP]  # addr of the new top of that stack
+        memory[address] = value  # store the value on the stack
 
-	elif inst == POP:
-		# copy value from register into memory
-		reg_num = memory[pc + 1]
+        pc += 2
 
-		address = register[SP]   # addr of item on the top of the stack
-		value = memory[address]  # this is the value we popped
+    elif inst == POP:
+        # copy value from register into memory
+        reg_num = memory[pc + 1]
 
-		register[reg_num] = value   # store the value in the register
+        address = register[SP]  # addr of item on the top of the stack
+        value = memory[address]  # this is the value we popped
 
-		pc += 2
+        register[reg_num] = value  # store the value in the register
 
-		# increment the stack pointer
-		register[SP] += 1   # address_of_the_top_of_stack -= 1
+        pc += 2
 
-	elif inst == CALL:
-		# compute return address
-		return_addr = pc + 2
+        # increment the stack pointer
+        register[SP] += 1  # address_of_the_top_of_stack -= 1
 
-		# push on the stack
-		register[SP] -= 1
-		memory[register[SP]] = return_addr
+    elif inst == CALL:
+        # compute return address
+        return_addr = pc + 2
 
-		# Set the PC to the value in the given register
-		reg_num = memory[pc + 1]
-		dest_addr = register[reg_num]
+        # push on the stack
+        register[SP] -= 1
+        memory[register[SP]] = return_addr
 
-		pc = dest_addr
+        # Set the PC to the value in the given register
+        reg_num = memory[pc + 1]
+        dest_addr = register[reg_num]
 
-	elif inst == RET:
-		# pop return address from top of stack
-		return_addr = memory[register[SP]]
-		register[SP] += 1
+        pc = dest_addr
 
-		# Set the pc
-		pc = return_addr
+    elif inst == RET:
+        # pop return address from top of stack
+        return_addr = memory[register[SP]]
+        register[SP] += 1
 
-	elif inst == HALT:
-		running = False
+        # Set the pc
+        pc = return_addr
 
-	else:
-		print("Unknown instruction")
-		running = False
+    elif inst == HALT:
+        running = False
 
+    else:
+        print("Unknown instruction")
+        running = False
