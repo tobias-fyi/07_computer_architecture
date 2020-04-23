@@ -148,9 +148,11 @@ class CPU:
             # Look up / execute the current instruction
             if ir in self.opcodes:
                 self.opcodes[ir]()
-            # TODO: figure out how to add this to lookup
+            # TODO: figure out how to add ALU to lookup
             elif ir == 0b10100010:  # MUL: Multiply
                 self.alu("MUL")
+            elif ir == 0b10100000:  # ADD
+                self.alu("ADD")
             else:  # Catch invalid / other instruction
                 print("Unrecognized instruction")
                 self.running = False
