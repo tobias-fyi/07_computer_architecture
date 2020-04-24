@@ -8,6 +8,7 @@
   * [Decimal to Binary](#decimal-to-binary)
   * [Hex to Decimal](#hex-to-decimal)
   * [Decimal to Hex](#decimal-to-hex)
+* [Interview](#interview)
 
 ## MVP
 
@@ -104,3 +105,19 @@ The register is made up of 8 bits. If a particular bit is set, that flag is "tru
     222 = 0xDE
     118 = 0x76
     185 = 0xB9
+
+## Interview
+
+1. What is the ALU in a CPU, and what does it do?
+
+Arithmetic Logic Unit. It performs mathematical operations / instructions.
+
+2. Why is a stack useful in a CPU?
+
+To store values and addresses that are used in instructions. Particularly useful for running subroutines because it can hold the address of the return point, as well as values to be operated on during any instruction.
+
+3. Convert 1101 0011 to hexidecimal
+
+    1101 0011
+      D   3
+    -> D3
